@@ -25,17 +25,17 @@ def exp_mov_avg(Gs, G, alpha=0.999, global_step=999):
     for ema_param, param in zip(Gs.parameters(), G.parameters()):
         ema_param.data.mul_(alpha).add_(1 - alpha, param.data)
 
-
+ 
 class Progress:
     """Determine the progress parameter of the training given the epoch and the progression in the epoch
     Args:
-          n_iter (int): the number of epochs before changing the progress,
+          ep_per_trans (int): the number of epochs before changing the progress,
           pmax (int): the maximum progress of the training.
           batchSizeList (list): the list of the batchSize to adopt during the training
     """
 
-    def __init__(self, n_iter, pmax, batchSizeList):
-        assert n_iter > 0 and isinstance(n_iter, int), 'n_iter must be int >= 1'
+    def __init__(self, ep_per_trans, pmax, batchSizeList):
+        assert ep_per_trans > 0 and isinstance(ep_per_trans, int), 'ep_per_trans must be int >= 1'
         assert pmax >= 0 and isinstance(pmax, int), 'pmax must be int >= 0'
         batchSizeList = list(int(b) for b in batchSizeList)
         assert isinstance(batchSizeList, list) and \
@@ -44,7 +44,7 @@ class Progress:
                len(batchSizeList) == pmax + 1, \
             'batchSizeList must be a list of int > 0 and of length pmax+1'
 
-        self.n_iter = n_iter
+        self.ep_per_trans = ep_per_trans
         self.pmax = pmax
         self.p = 0
         self.batchSizeList = batchSizeList
@@ -52,12 +52,17 @@ class Progress:
     def progress(self, epoch, i, total):
         """Update the progress given the epoch and the iteration of the epoch
         Args:
-            epoch (int): batch of images to resize
+            epoch (int): current epoch
             i (int): iteration in the epoch
             total (int): total number of iterations in the epoch
+
+            progress(current_epoch, current_iteration_in_an_epoch, number_of_epochs_per_transition)
+
+            alpha = f(progress)
         """
-        x = (epoch + i / total) / self.n_iter
-        self.p = min(max(int(x / 2), x - ceil(x / 2), 0), self.pmax)
+        x = (epoch + i / total) / self.ep_per_trans # 10 ep, 500 iter, 1000 total_iter, 2 ep_per trans -> 5 x
+        p = max(int(x / 2), x - ceil(x / 2), 0) # 5 x -> 2 p
+        self.p = min(p, self.pmax)
         return self.p
 
     def resize(self, images):

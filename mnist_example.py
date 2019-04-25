@@ -34,7 +34,7 @@ parser.add_argument('--BN', action='store_true', help='use BatchNorm in G and D'
 parser.add_argument('--WS', action='store_true', help='use WeightScale in G and D')
 parser.add_argument('--PN', action='store_true', help='use PixelNorm in G')
 
-parser.add_argument('--n_iter', type=int, default=1, help='number of epochs to train before changing the progress')
+parser.add_argument('--ep_per_trans', type=int, default=1, help='number of epochs to train before changing the progress')
 parser.add_argument('--lambdaGP', type=float, default=10, help='lambda for gradient penalty')
 parser.add_argument('--epochs', type=int, default=20, help='number of epochs')
 parser.add_argument('--gamma', type=float, default=1, help='gamma for gradient penalty')
@@ -86,7 +86,7 @@ total = 2
 d_losses = np.array([])
 d_losses_W = np.array([])
 g_losses = np.array([])
-P = Progress(opt.n_iter, MAX_RES, opt.batchSizes)
+P = Progress(opt.ep_per_trans, MAX_RES, opt.batchSizes)
 
 z_save = hypersphere(torch.randn(opt.savenum, opt.nch * 32, 1, 1, device=DEVICE))
 
