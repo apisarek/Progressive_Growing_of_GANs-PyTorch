@@ -37,6 +37,7 @@ class Progress:
     def __init__(self, n_iter, pmax, batchSizeList):
         assert n_iter > 0 and isinstance(n_iter, int), 'n_iter must be int >= 1'
         assert pmax >= 0 and isinstance(pmax, int), 'pmax must be int >= 0'
+        batchSizeList = list(int(b) for b in batchSizeList)
         assert isinstance(batchSizeList, list) and \
                all(isinstance(x, int) for x in batchSizeList) and \
                all(x > 0 for x in batchSizeList) and \
